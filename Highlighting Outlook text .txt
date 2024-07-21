@@ -1,0 +1,74 @@
+Sub importarpalabras1()
+    Dim folderPath As String
+    folderPath = "C:\Users\Cash\Desktop\trabajo fiverr\proyecto outlook\"
+    
+    
+    Dim fileName As String
+    fileName = "info partners.xlsx"
+    
+   
+    Dim excelApp As Excel.Application
+    Dim excelWorkbook As Excel.Workbook
+    Dim excelWorksheet As Excel.Worksheet
+    Set excelApp = CreateObject("Excel.Application")
+    Set excelWorkbook = excelApp.Workbooks.Open(folderPath & fileName)
+    Set excelWorksheet = excelWorkbook.Sheets(1)
+    
+
+    Dim lastRow As Long
+    lastRow = excelWorksheet.Cells(excelWorksheet.Rows.Count, "A").End(xlUp).Row
+    Dim wordsToSearch() As String
+    ReDim wordsToSearch(1 To lastRow)
+    Dim rowIndex As Long
+    For rowIndex = 1 To lastRow
+        wordsToSearch(rowIndex) = excelWorksheet.Cells(rowIndex, "A").Value
+    Next rowIndex
+    
+    
+    excelWorkbook.Close False
+    excelApp.Quit
+    Set excelWorksheet = Nothing
+    Set excelWorkbook = Nothing
+    Set excelApp = Nothing
+    
+
+    HighlightStringWithWordsToSearch wordsToSearch
+End Sub
+ 
+Sub HighlightStringWithWordsToSearch1(wordsToSearch As Variant)
+    Dim myMail As Outlook.MailItem
+    Set myMail = Application.ActiveExplorer.Selection.Item(1)
+    
+    Dim strID As String
+    Dim objMail As Outlook.MailItem
+    strID = myMail.EntryID
+    Set objMail = Application.Session.GetItemFromID(strID)
+    
+
+    Dim lines() As String
+    lines = Split(objMail.Body, vbCrLf)
+    Dim lineIndex As Long
+    Dim word As Variant
+    For lineIndex = LBound(lines) To UBound(lines)
+        For Each word In wordsToSearch
+            If InStr(1, lines(lineIndex), word, vbTextCompare) > 0 Then
+                Exit For
+            End If
+        Next word
+        If word <> "" Then
+            Exit For
+        End If
+    Next lineIndex
+    
+    If lineIndex <= UBound(lines) Then
+        Dim strData As String
+        strData = objMail.HTMLBody
+        For Each word In wordsToSearch
+            strData = Replace(strData, word, "<FONT style=" & Chr(34) & "BACKGROUND-COLOR: yellow" & Chr(34) & ">" & word & "</FONT>")
+        Next word
+        objMail.HTMLBody = strData
+        objMail.Display
+    End If
+    
+    Set objMail = Nothing
+End Sub
