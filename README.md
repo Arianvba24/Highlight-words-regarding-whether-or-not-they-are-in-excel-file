@@ -2,7 +2,7 @@
 
 This project was asked by a marketing & sales department. She needed a script that highlights words in every mail she opens importing words from an excel file and checking if are in the email.
 
-We proceed creating a macro and two other scripts:
+We proceed creating a macro and two other scripts. The macro will be executed everytime we open an email:
 
 ![image](https://github.com/user-attachments/assets/910115ab-2c41-48c4-a77b-4f747d14c2a1)
 
